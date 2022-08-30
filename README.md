@@ -6,7 +6,7 @@ This respository implement the Seq2Seq Image to Latex architecture from paper â€
 
 ## Architecture
 
-This structure is very based on Seq2Seq architecture, it use one Convolutional Encoder and one RNN Decoder.
+This structure is based on Seq2Seq architecture, it use one Convolutional Encoder and one RNN Decoder.
 
 <div>
     <image src="https://deforani.sirv.com/Images/Github/Image2Latex/image2latex.png" />
