@@ -12,13 +12,8 @@ class Text:
         self.sos_id = 1
         self.eos_id = 2
         self.TOKENIZE_PATTERN = re.compile(
-            "(\\\\[a-zA-Z]+)|"
-            +  # \[command name]
-            # "(\{\w+?\})|"+ # {[text-here]} Check if this is needed
-            '((\\\\)*[$-/:-?{-~!"^_`\[\]])|'
-            + "(\w)|"  # math symbols
-            + "(\\\\)"  # single letters or other chars
-        )  # \ characters
+            '(\\\\[a-zA-Z]+)|((\\\\)*[$-/:-?{-~!"^_`\[\]])|(\w)|(\\\\)'
+        )
 
     def tokenize(self, formula: str):
         """Returns list of tokens in given formula.
