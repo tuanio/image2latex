@@ -18,8 +18,8 @@ class Image2Latex(nn.Module):
         bidirectional: bool = False,
         sos_id: int = 1,
         eos_id: int = 2,
-        decode_type: str = 'greedy',
-        text: Text = None
+        decode_type: str = "greedy",
+        text: Text = None,
     ):
         super().__init__()
         self.n_class = n_class
@@ -37,7 +37,7 @@ class Image2Latex(nn.Module):
             eos_id=eos_id,
         )
         self.init_hidden = nn.Linear(enc_dim, dec_dim)
-        assert decode_type in ['greedy', 'beam']
+        assert decode_type in ["greedy", "beam"]
         self.decode_type = decode_type
         self.text = text
 
@@ -74,7 +74,7 @@ class Image2Latex(nn.Module):
         return outputs.permute(1, 0, 2)
 
     def decode(self, x: Tensor, max_length: int):
-        if self.decode_type == 'greedy':
+        if self.decode_type == "greedy":
             predict = self.decode_greedy(x, max_length)
             predict = self.text.int2text(predict)
             return predict
@@ -94,11 +94,11 @@ class Image2Latex(nn.Module):
 
             output, (h, c), o = self.decoder(_input, V, h, c, o)
 
-            top_1 = output.argmax(-1) # greedy decode
+            top_1 = output.argmax(-1)  # greedy decode
 
             if top_1.item() == self.decoder.eos_id:
                 break
-        
+
             predict.append(top_1)
 
             _input = top_1
