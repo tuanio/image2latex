@@ -36,7 +36,8 @@ class Image2Latex(nn.Module):
             sos_id=sos_id,
             eos_id=eos_id,
         )
-        self.init_hidden = nn.Linear(enc_dim, dec_dim)
+        self.init_h = nn.Linear(enc_dim, dec_dim)
+        self.init_c = nn.Linear(enc_dim, dec_dim)
         assert decode_type in ["greedy", "beam"]
         self.decode_type = decode_type
         self.text = text
@@ -45,8 +46,10 @@ class Image2Latex(nn.Module):
         """
             return (h, c)
         """
-        h = torch.tanh(self.init_hidden(V.mean(dim=[2, 3])))
-        return h, h
+        encoder_mean = V.mean(dim=[2, 3])
+        h = torch.tanh(self.init_h(encoder_mean))
+        c = torch.tanh(self.init_c(encoder_mean))
+        return h, c
 
     def forward(self, x: Tensor, y: Tensor, teacher_forcing_ratio: float = 0.5):
         V = self.encoder(x)
