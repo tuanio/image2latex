@@ -92,10 +92,9 @@ class Image2Latex(nn.Module):
         predict = []
 
         o = None
-        _input = x.new_tensor(torch.zeros(bs) + self.decoder.sos_id).to(
-            dtype=torch.long
+        _input = (torch.zeros(bs) + self.decoder.sos_id).to(
+            dtype=torch.long, device=x.device
         )
-        print(_input.device)
         for t in range(1, max_length):
             _input = _input.unsqueeze(1)
 
