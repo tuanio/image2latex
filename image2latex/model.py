@@ -95,6 +95,7 @@ class Image2Latex(nn.Module):
         _input = x.new_tensor(torch.zeros(bs) + self.decoder.sos_id).to(
             dtype=torch.long
         )
+        print(_input.device)
         for t in range(1, max_length):
             _input = _input.unsqueeze(1)
 
