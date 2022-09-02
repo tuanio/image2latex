@@ -88,10 +88,12 @@ class Image2Latex(nn.Module):
         h, c = self.init_decoder_hidden_state(V)
 
         bs = V.size(0)
+        assert bs == 1, "Batch size must be 1"
         predict = []
 
         o = None
-        _input = torch.LongTensor([self.decoder.sos_id])
+        _input = torch.zeros(bs) + self.decoder.sos_id
+        _input = _input.to(dtype=torch.long)
         for t in range(1, max_length):
             _input = _input.unsqueeze(1)
 
