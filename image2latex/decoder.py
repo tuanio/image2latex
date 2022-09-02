@@ -52,7 +52,6 @@ class Decoder(nn.Module):
             o = torch.tanh(self.concat(concat_input))
 
         embedded = self.embedding(y)
-        print(embedded.size(), o.size())
         rnn_input = torch.stack(
             [torch.cat((i, o), -1) for i in embedded.permute(1, 0, 2)]
         ).permute(1, 0, 2)
