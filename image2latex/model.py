@@ -56,8 +56,7 @@ class Image2Latex(nn.Module):
         h, c = self.init_decoder_hidden_state(V)
 
         bs, target_len = y.size()
-        zeros = torch.zeros(target_len, bs, self.n_class)
-        outputs = x.new_tensor(zeros)
+        outputs = torch.zeros(target_len, bs, self.n_class).to(x.device)
 
         o = None
         _input = y[:, 0]  # get first element of all batch
