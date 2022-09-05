@@ -43,8 +43,6 @@ class Decoder(nn.Module):
             for name, param in self.rnn.named_parameters():
                 if name.startswith("weight"):
                     nn.init.orthogonal_(param)
-        elif isinstance(layer, nn.Linear):
-            nn.init.xavier_normal_(layer.weight)
 
     def forward(self, y: Tensor, V: Tensor, h: Tensor, c: Tensor, o: Tensor = None):
         """
