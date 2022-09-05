@@ -38,7 +38,7 @@ class Decoder(nn.Module):
 
     def init_weights(self, layer):
         if isinstance(layer, nn.Embedding):
-            nn.init.orthogonal_(layer)
+            nn.init.orthogonal_(layer.weight)
         elif isinstance(layer, nn.LSTM):
             for name, param in self.rnn.named_parameters():
                 if name.startswith("weight"):
