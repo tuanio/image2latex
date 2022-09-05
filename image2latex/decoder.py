@@ -41,7 +41,7 @@ class Decoder(nn.Module):
             nn.init.orthogonal_(layer)
         elif isinstance(layer, nn.LSTM):
             for name, param in self.rnn.named_parameters():
-                if name.startswith('weight'):
+                if name.startswith("weight"):
                     nn.init.orthogonal_(param)
         elif isinstance(layer, nn.Linear):
             nn.init.xavier_normal_(layer.weight)
