@@ -15,6 +15,11 @@ class Encoder(nn.Module):
             nn.MaxPool2d(1, 2),
             nn.Conv2d(512, enc_dim, 3, 1),
         )
+        self.conv.apply(self.init_weights)
+
+    def init_weights(self, layer: nn.Module):
+        if isinstance(layer, nn.Conv2d):
+            nn.init.xavier_normal_(layer.weight)
 
     def forward(self, x: Tensor):
         """

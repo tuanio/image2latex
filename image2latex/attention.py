@@ -10,6 +10,12 @@ class Attention(nn.Module):
         self.full_attn = nn.Linear(attn_dim, 1, bias=False)
         self.softmax = nn.Softmax(dim=-1)
 
+        self.apply(self.init_weights)
+
+    def init_weights(self, layer):
+        if isinstance(layer, nn.Linear):
+            nn.init.xavier_normal_(layer.weight)
+
     def forward(self, h: Tensor, V: Tensor):
         """
             input:

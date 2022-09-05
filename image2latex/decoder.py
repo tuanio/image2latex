@@ -34,6 +34,18 @@ class Decoder(nn.Module):
         self.out = nn.Linear(dec_dim, n_class)
         self.softmax = nn.Softmax(dim=-1)
 
+        self.apply(self.init_weights)
+
+    def init_weights(self, layer):
+        if isinstance(layer, nn.Embedding):
+            nn.init.orthogonal_(layer)
+        elif isinstance(layer, nn.LSTM):
+            for name, param in self.rnn.named_parameters():
+                if name.startswith('weight'):
+                    nn.init.orthogonal_(param)
+        elif isinstance(layer, nn.Linear):
+            nn.init.xavier_normal_(layer.weight)
+
     def forward(self, y: Tensor, V: Tensor, h: Tensor, c: Tensor, o: Tensor = None):
         """
             input:
