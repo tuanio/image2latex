@@ -95,11 +95,11 @@ assert warmup_epochs + constant_epochs + decay_epochs == epochs, "Not equal"
 
 
 def collate_fn(batch):
+    size = len(batch)
     formulas = [text.text2int(i[1]) for i in batch]
     formulas = pad_sequence(formulas, batch_first=True)
-    sos = torch.zeros(bs, 1) + text.map_tokens["<s>"]
-    eos = torch.zeros(bs, 1) + text.map_tokens["<e>"]
-    print(eos.size(), sos.size(), formulas.size())
+    sos = torch.zeros(size, 1) + text.map_tokens["<s>"]
+    eos = torch.zeros(size, 1) + text.map_tokens["<e>"]
     formulas = torch.cat((sos, formulas, eos), dim=-1).to(dtype=torch.long)
     image = [i[0] for i in batch]
     max_width, max_height = 0, 0
