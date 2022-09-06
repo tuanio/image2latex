@@ -23,6 +23,9 @@ import argparse
 parser = argparse.ArgumentParser(description="training image2latex")
 parser.add_argument("-bs", type=int)
 parser.add_argument("--root-data-path")
+parser.add_argument('--train', action=argparse.BooleanOptionalAction)
+parser.add_argument('--val', action=argparse.BooleanOptionalAction)
+parser.add_argument('--test', action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 root_data_path = args.root_data_path
@@ -281,5 +284,11 @@ trainer = pl.Trainer(
     accelerator="gpu",
     accumulate_grad_batches=32,
 )
-trainer.fit(datamodule=dm, model=model)
-trainer.test(datamodule=dm, model=model)
+
+if args.train:
+    print("=" * 10 + "[Train]" + "=" * 10)
+    trainer.fit(datamodule=dm, model=model)
+
+if args.test:
+    print("=" * 10 + "[Test]" + "=" * 10)
+    trainer.test(datamodule=dm, model=model)
