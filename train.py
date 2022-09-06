@@ -25,16 +25,17 @@ parser.add_argument("-bs", type=int)
 parser.add_argument("--root-data-path", help="Root data path")
 parser.add_argument(
     "--train",
-    action=argparse.BooleanOptionalAction,
+    action="store_true",
     help="call this for training mode",
 )
 parser.add_argument(
     "--test",
-    action=argparse.BooleanOptionalAction,
+    action="store_true",
     help="call this for testing mode",
 )
 
 args = parser.parse_args()
+
 root_data_path = args.root_data_path
 
 data_path = Path(root_data_path)
