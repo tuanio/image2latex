@@ -29,6 +29,11 @@ parser.add_argument(
     help="call this for training mode",
 )
 parser.add_argument(
+    "--val",
+    action="store_true",
+    help="call this for validating mode",
+)
+parser.add_argument(
     "--test",
     action="store_true",
     help="call this for testing mode",
@@ -296,6 +301,11 @@ trainer = pl.Trainer(
 if args.train:
     print("=" * 10 + "[Train]" + "=" * 10)
     trainer.fit(datamodule=dm, model=model)
+
+if args.val:
+    print("=" * 10 + "[Validate]" + "=" * 10)
+    trainer.validate(datamodule=dm, model=model)
+
 
 if args.test:
     print("=" * 10 + "[Test]" + "=" * 10)
