@@ -20,7 +20,7 @@ from typing import Tuple
 import pytorch_lightning as pl
 import argparse
 
-parser = argparse.ArgumentParser(help="training image2latex")
+parser = argparse.ArgumentParser(description="training image2latex")
 parser.add_argument("-bs", type=int)
 parser.add_argument("--root-data-path", help="Root data path")
 parser.add_argument(
