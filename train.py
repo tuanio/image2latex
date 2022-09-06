@@ -22,10 +22,22 @@ import argparse
 
 parser = argparse.ArgumentParser(description="training image2latex")
 parser.add_argument("-bs", type=int)
-parser.add_argument("--root-data-path")
-parser.add_argument('--train', action=argparse.BooleanOptionalAction)
-parser.add_argument('--val', action=argparse.BooleanOptionalAction)
-parser.add_argument('--test', action=argparse.BooleanOptionalAction)
+parser.add_argument("--root-data-path", description="Root data path")
+parser.add_argument(
+    "--train",
+    action=argparse.BooleanOptionalAction,
+    description="call this for training mode",
+)
+parser.add_argument(
+    "--val",
+    action=argparse.BooleanOptionalAction,
+    description="call this for validating mode",
+)
+parser.add_argument(
+    "--test",
+    action=argparse.BooleanOptionalAction,
+    description="call this for testing mode",
+)
 
 args = parser.parse_args()
 root_data_path = args.root_data_path
