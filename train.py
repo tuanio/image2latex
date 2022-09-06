@@ -20,23 +20,18 @@ from typing import Tuple
 import pytorch_lightning as pl
 import argparse
 
-parser = argparse.ArgumentParser(description="training image2latex")
+parser = argparse.ArgumentParser(help="training image2latex")
 parser.add_argument("-bs", type=int)
-parser.add_argument("--root-data-path", description="Root data path")
+parser.add_argument("--root-data-path", help="Root data path")
 parser.add_argument(
     "--train",
     action=argparse.BooleanOptionalAction,
-    description="call this for training mode",
-)
-parser.add_argument(
-    "--val",
-    action=argparse.BooleanOptionalAction,
-    description="call this for validating mode",
+    help="call this for training mode",
 )
 parser.add_argument(
     "--test",
     action=argparse.BooleanOptionalAction,
-    description="call this for testing mode",
+    help="call this for testing mode",
 )
 
 args = parser.parse_args()
