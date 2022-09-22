@@ -47,9 +47,9 @@ img_path = Path(f"{root_data_path}/formula_images_processed/formula_images_proce
 bs = args.bs
 accumulate_grad_batches = int(32 / bs)
 lr = 1e-3
-epochs = parser.epochs
+epochs = args.epochs
 max_length = 150
-log_step = parser.log_step
+log_step = args.log_step
 workers = args.worker
 
 cuda = torch.cuda.is_available()
