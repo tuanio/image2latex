@@ -7,7 +7,7 @@ from torch.utils.checkpoint import checkpoint
 from torch.utils.data import DataLoader, Dataset
 from torch import nn, Tensor
 import matplotlib.pyplot as plt
-from image2latex import Image2Latex, Text, TriStageLRScheduler
+from image2latex import Image2Latex, Text
 from pathlib import Path
 import torchvision
 from torch.nn.utils.rnn import pad_sequence, pad_packed_sequence
@@ -36,6 +36,7 @@ parser.add_argument(
 parser.add_argument("--workers", type=int, default=1)
 parser.add_argument("--epochs", type=int, default=15)
 parser.add_argument("--log-step", type=int, default=300)
+parser.add_argument("--lr", type=float, default=0.01)
 
 args = parser.parse_args()
 
@@ -46,7 +47,7 @@ img_path = Path(f"{data_path}/formula_images_processed/formula_images_processed"
 
 bs = args.bs
 accumulate_grad_batches = int(32 / bs)
-lr = 1e-3
+lr = args.lr
 epochs = args.epochs
 max_length = 150
 log_step = args.log_step
@@ -86,9 +87,7 @@ test_set = LatexDataset("test")
 
 steps_per_epoch = round(len(train_set) / bs)
 
-warmup_epochs = 2
-constant_epochs = 8
-decay_epochs = 5
+total_steps = steps_per_epoch * epochs
 
 assert warmup_epochs + constant_epochs + decay_epochs == epochs, "Not equal"
 
@@ -155,17 +154,8 @@ class Image2LatexModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = TriStageLRScheduler(
-            optimizer,
-            init_lr=1e-4,
-            peak_lr=1e-3,
-            final_lr=1e-5,
-            init_lr_scale=0.01,
-            final_lr_scale=0.01,
-            warmup_steps=steps_per_epoch * warmup_epochs,
-            hold_steps=steps_per_epoch * constant_epochs,
-            decay_steps=steps_per_epoch * decay_epochs,
-            total_steps=steps_per_epoch * bs,
+        scheduler = optim.lr_scheduler.OneCycleLR(
+            optimizer, max_lr=lr, pct_start=0.3, total_steps=total_steps, verbose=False
         )
         scheduler = {
             "scheduler": scheduler,
