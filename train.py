@@ -152,7 +152,7 @@ class Image2LatexModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = optim.lr_scheduler.OneCycleLR(
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer, max_lr=lr, pct_start=0.3, total_steps=total_steps, verbose=False
         )
         scheduler = {
