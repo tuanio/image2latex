@@ -3,6 +3,7 @@ import torch
 from torch import nn, Tensor
 from . import Encoder, Decoder
 from .text import Text
+from queue import PriorityQueue
 
 
 class Image2Latex(nn.Module):
@@ -20,6 +21,7 @@ class Image2Latex(nn.Module):
         eos_id: int = 2,
         decode_type: str = "greedy",
         text: Text = None,
+        beam_width: int = 5,
     ):
         super().__init__()
         self.n_class = n_class
@@ -41,6 +43,7 @@ class Image2Latex(nn.Module):
         assert decode_type in ["greedy", "beam"]
         self.decode_type = decode_type
         self.text = text
+        self.beam_width = beam_width
 
     def init_decoder_hidden_state(self, V: Tensor):
         """
@@ -75,14 +78,14 @@ class Image2Latex(nn.Module):
 
         return outputs.permute(1, 0, 2)
 
-    def decode(self, x: Tensor, max_length: int):
+    def decode(self, x: Tensor, max_length: int = 150):
         if self.decode_type == "greedy":
             predict = self.decode_greedy(x, max_length)
-            predict = self.text.int2text(predict)
-            return predict
-        # beam
+        elif self.decode_type == "beam_search":
+            predict = self.decode_beam_search(x, self.beam_width, max_length)
+        return self.text.int2text(predict)
 
-    def decode_greedy(self, x: Tensor, max_length: int):
+    def decode_greedy(self, x: Tensor, max_length: int = 150):
         V = self.encoder(x)
         h, c = self.init_decoder_hidden_state(V)
 
@@ -109,3 +112,27 @@ class Image2Latex(nn.Module):
             _input = top_1
 
         return torch.LongTensor(predict)
+
+    def decode_beam_search(self, x: Tensor, beam_width: int = 5, max_length: int = 150):
+        V = self.encoder(x)
+        h, c = self.init_decoder_hidden_state(V)
+
+        bs = V.size(0)
+        assert bs == 1, "Batch size must be 1"
+        list_predict = []
+
+        _input = (torch.zeros(bs) + self.decoder.sos_id).to(
+            dtype=torch.long, device=x.device
+        )
+
+        q = PriorityQueue()
+        q.put((-1, _input, h, c, o))
+
+        for t in range(1, max_length):
+
+            step_q = PriorityQueue()
+            while not q.empty():
+                prob, _input, h, c, o = q.get()
+                prob = -prob
+
+                output, (h, c), o = self.decoder(_input, V, h, c, o)

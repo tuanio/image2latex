@@ -24,20 +24,18 @@ parser = argparse.ArgumentParser(description="training image2latex")
 parser.add_argument("-bs", type=int)
 parser.add_argument("--root-data-path", help="Root data path")
 parser.add_argument(
-    "--train",
-    action="store_true",
-    help="call this for training mode",
+    "--train", action="store_true", help="call this for training mode",
 )
 parser.add_argument(
-    "--val",
-    action="store_true",
-    help="call this for validating mode",
+    "--val", action="store_true", help="call this for validating mode",
 )
 parser.add_argument(
-    "--test",
-    action="store_true",
-    help="call this for testing mode",
+    "--test", action="store_true", help="call this for testing mode",
 )
+
+parser.add_argument("--workers", type=int, default=1)
+parser.add_argument("--epochs", type=int, default=15)
+parser.add_argument("--log-step", type=int, default=300)
 
 args = parser.parse_args()
 
@@ -47,11 +45,12 @@ data_path = Path(root_data_path)
 img_path = Path(f"{root_data_path}/formula_images_processed/formula_images_processed")
 
 bs = args.bs
+accumulate_grad_batches = int(32 / bs)
 lr = 1e-3
-epochs = 15
+epochs = parser.epochs
 max_length = 150
-log_idx = 300
-workers = 24
+log_step = parser.log_step
+workers = args.worker
 
 cuda = torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
@@ -268,7 +267,6 @@ class Image2LatexModel(pl.LightningModule):
 
 dm = DataModule(train_set, val_set, test_set)
 
-
 emb_dim = 80
 dec_dim = 512
 enc_dim = 512
@@ -294,8 +292,8 @@ trainer = pl.Trainer(
     logger=tb_logger,
     callbacks=[lr_monitor],
     max_epochs=epochs,
-    accelerator="gpu",
-    accumulate_grad_batches=32,
+    accelerator="auto",
+    accumulate_grad_batches=accumulate_grad_batches,
 )
 
 if args.train:
