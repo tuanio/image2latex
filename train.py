@@ -22,7 +22,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="training image2latex")
 parser.add_argument("-bs", type=int)
-parser.add_argument("--root-data-path", help="Root data path")
+parser.add_argument("--data-path", help="Root data path")
 parser.add_argument(
     "--train", action="store_true", help="call this for training mode",
 )
@@ -39,10 +39,10 @@ parser.add_argument("--log-step", type=int, default=300)
 
 args = parser.parse_args()
 
-root_data_path = args.root_data_path
+data_path = args.data_path
 
-data_path = Path(root_data_path)
-img_path = Path(f"{root_data_path}/formula_images_processed/formula_images_processed")
+data_path = Path(data_path)
+img_path = Path(f"{data_path}/formula_images_processed/formula_images_processed")
 
 bs = args.bs
 accumulate_grad_batches = int(32 / bs)
@@ -50,7 +50,7 @@ lr = 1e-3
 epochs = args.epochs
 max_length = 150
 log_step = args.log_step
-workers = args.worker
+workers = args.workers
 
 cuda = torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
