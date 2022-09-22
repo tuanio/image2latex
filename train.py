@@ -89,8 +89,6 @@ steps_per_epoch = round(len(train_set) / bs)
 
 total_steps = steps_per_epoch * epochs
 
-assert warmup_epochs + constant_epochs + decay_epochs == epochs, "Not equal"
-
 
 def collate_fn(batch):
     size = len(batch)
