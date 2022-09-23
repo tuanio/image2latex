@@ -293,6 +293,7 @@ trainer = pl.Trainer(
     callbacks=[lr_monitor],
     max_epochs=epochs,
     accelerator="auto",
+    precision=16,
     accumulate_grad_batches=accumulate_grad_batches,
 )
 
