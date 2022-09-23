@@ -41,6 +41,7 @@ parser.add_argument("--workers", type=int, default=1)
 parser.add_argument("--epochs", type=int, default=15)
 parser.add_argument("--log-step", type=int, default=300)
 parser.add_argument("--lr", type=float, default=0.01)
+parser.add_argument("--big-bs", type=int, default=64)
 parser.add_argument("--ckpt-path", type=str, default=None)
 
 args = parser.parse_args()
@@ -51,7 +52,7 @@ data_path = Path(data_path)
 img_path = Path(f"{data_path}/formula_images_processed/formula_images_processed")
 
 bs = args.bs
-accumulate_grad_batches = int(32 / bs)
+accumulate_grad_batches = int(args.big_bs / bs)
 lr = args.lr
 epochs = args.epochs
 max_length = 150
