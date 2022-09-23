@@ -33,10 +33,15 @@ parser.add_argument(
     "--test", action="store_true", help="call this for testing mode",
 )
 
+parser.add_argument(
+    "--lr-scheduler", action="store_true", help="call this for using lr scheduler",
+)
+
 parser.add_argument("--workers", type=int, default=1)
 parser.add_argument("--epochs", type=int, default=15)
 parser.add_argument("--log-step", type=int, default=300)
 parser.add_argument("--lr", type=float, default=0.01)
+parser.add_argument("--ckpt-path", type=str, default=None)
 
 args = parser.parse_args()
 
@@ -152,16 +157,23 @@ class Image2LatexModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            optimizer, max_lr=lr, pct_start=0.3, total_steps=total_steps, verbose=False
-        )
-        scheduler = {
-            "scheduler": scheduler,
-            "interval": "step",  # or 'epoch'
-            "frequency": 1,
-        }
-        return [optimizer], [scheduler]
-        # return optimizer
+
+        if args.lr_scheduler:
+            scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                max_lr=lr,
+                pct_start=0.3,
+                total_steps=total_steps,
+                verbose=False,
+            )
+            scheduler = {
+                "scheduler": scheduler,
+                "interval": "step",  # or 'epoch'
+                "frequency": 1,
+            }
+            return [optimizer], [scheduler]
+
+        return optimizer
 
     def forward(self, images, formulas):
         return self.model(images, formulas)
@@ -284,15 +296,19 @@ trainer = pl.Trainer(
     accumulate_grad_batches=accumulate_grad_batches,
 )
 
+ckpt_path = args.ckpt_path
+if ckpt_path:
+    model = model.load_from_checkpoint(ckpt_path)
+
 if args.train:
     print("=" * 10 + "[Train]" + "=" * 10)
-    trainer.fit(datamodule=dm, model=model)
+    trainer.fit(datamodule=dm, model=model, ckpt_path=ckpt_path)
 
 if args.val:
     print("=" * 10 + "[Validate]" + "=" * 10)
-    trainer.validate(datamodule=dm, model=model)
+    trainer.validate(datamodule=dm, model=model, ckpt_path=ckpt_path)
 
 
 if args.test:
     print("=" * 10 + "[Test]" + "=" * 10)
-    trainer.test(datamodule=dm, model=model)
+    trainer.test(datamodule=dm, model=model, ckpt_path=ckpt_path)
