@@ -114,7 +114,14 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
-        bleu4 = bleu_score(predicts, truths)
+        bleu4 = torch.mean(
+            torch.Tensor(
+                [
+                    bleu_score([pre], [[tru]])
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
+        )
 
         self.log("val_loss", loss)
         self.log("val_perplexity", perplexity)
@@ -151,8 +158,15 @@ class Image2LatexModel(pl.LightningModule):
                 ]
             )
         )
-
-        bleu4 = bleu_score(predicts, truths)
+        
+        bleu4 = torch.mean(
+            torch.Tensor(
+                [
+                    bleu_score([pre], [[tru]])
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
+        )
 
         self.log("test_loss", loss)
         self.log("test_perplexity", perplexity)
