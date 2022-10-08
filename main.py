@@ -101,6 +101,7 @@ if __name__ == "__main__":
         decode_type=args.decode_type,
         text=text,
         beam_width=args.beam_width,
+        log_step=args.log_step
     )
 
     wandb_logger = pl.loggers.WandbLogger(

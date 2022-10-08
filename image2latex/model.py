@@ -25,6 +25,7 @@ class Image2LatexModel(pl.LightningModule):
         beam_width: int = 5,
         sos_id: int = 1,
         eos_id: int = 2,
+        log_step: int = 100,
     ):
         super().__init__()
         self.model = Image2Latex(
@@ -47,6 +48,7 @@ class Image2LatexModel(pl.LightningModule):
         self.total_steps = total_steps
         self.text = text
         self.max_length = 150
+        self.log_step = log_step
         self.save_hyperparameters()
 
     def configure_optimizers(self):
@@ -123,6 +125,14 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
+        if batch_idx % self.log_step == 0:
+            for truth, pred in zip(truths, predicts):
+                print("=" * 20)
+                print(f"Truth: [{' '.join(truth)}]")
+                print(f"Predict: [{' '.join(pred)}]")
+                print("=" * 20)
+            print()
+
         self.log("val_loss", loss)
         self.log("val_perplexity", perplexity)
         self.log("val_edit_distance", edit_dist)
@@ -167,6 +177,14 @@ class Image2LatexModel(pl.LightningModule):
                 ]
             )
         )
+
+        if batch_idx % self.log_step == 0:
+            for truth, pred in zip(truths, predicts):
+                print("=" * 20)
+                print(f"Truth: [{' '.join(truth)}]")
+                print(f"Predict: [{' '.join(pred)}]")
+                print("=" * 20)
+            print()
 
         self.log("test_loss", loss)
         self.log("test_perplexity", perplexity)
