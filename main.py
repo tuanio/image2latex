@@ -115,7 +115,6 @@ if __name__ == "__main__":
         accelerator="auto",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
-        accumulate_grad_batches=2,
     )
 
     ckpt_path = args.ckpt_path
