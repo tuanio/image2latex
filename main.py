@@ -65,18 +65,21 @@ if __name__ == "__main__":
         img_path=args.img_path,
         data_type="train",
         n_sample=args.train_sample,
+        dataset=args.dataset,
     )
     val_set = LatexDataset(
         data_path=args.data_path,
         img_path=args.img_path,
         data_type="validate",
         n_sample=args.val_sample,
+        dataset=args.dataset,
     )
     test_set = LatexDataset(
         data_path=args.data_path,
         img_path=args.img_path,
         data_type="test",
         n_sample=args.test_sample,
+        dataset=args.dataset,
     )
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
