@@ -20,6 +20,7 @@ class DataModule(pl.LightningDataModule):
             shuffle=True,
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
+            drop_last=True,
         )
 
     def val_dataloader(self):
