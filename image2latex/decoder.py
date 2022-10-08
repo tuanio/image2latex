@@ -31,7 +31,7 @@ class Decoder(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.layernorm = nn.LayerNorm((dec_dim))
+        # self.layernorm = nn.LayerNorm((dec_dim))
         self.out = nn.Linear(dec_dim, n_class)
         self.logsoftmax = nn.LogSoftmax(dim=-1)
 
@@ -62,7 +62,7 @@ class Decoder(nn.Module):
         rnn_input = rnn_input.unsqueeze(1)
         hidden_state = h.unsqueeze(0), c.unsqueeze(0)
         out, hidden_state = self.rnn(rnn_input, hidden_state)
-        out = self.layernorm(out)
+        # out = self.layernorm(out)
         out = self.logsoftmax(self.out(out))
         h, c = hidden_state
         return out, (h.squeeze(0), c.squeeze(0))
