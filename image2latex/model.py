@@ -1,138 +1,163 @@
-import random
 import torch
 from torch import nn, Tensor
-from . import Encoder, Decoder
+from .im2latex import Image2Latex
 from .text import Text
-from queue import PriorityQueue
+import pytorch_lightning as pl
+from torchaudio.functional import edit_distance
+from torchtext.data.metrics import bleu_score
 
 
-class Image2Latex(nn.Module):
+class Image2LatexModel(pl.LightningModule):
     def __init__(
         self,
+        lr,
+        total_steps,
         n_class: int,
         enc_dim: int = 512,
-        emb_dim: int = 512,
+        emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
         num_layers: int = 1,
         dropout: float = 0.1,
         bidirectional: bool = False,
-        sos_id: int = 1,
-        eos_id: int = 2,
         decode_type: str = "greedy",
         text: Text = None,
         beam_width: int = 5,
+        sos_id: int = 1,
+        eos_id: int = 2,
     ):
         super().__init__()
-        self.n_class = n_class
-        self.encoder = Encoder(enc_dim=enc_dim)
-        self.decoder = Decoder(
-            n_class=n_class,
-            emb_dim=emb_dim,
-            dec_dim=dec_dim,
-            enc_dim=enc_dim,
-            attn_dim=attn_dim,
-            num_layers=num_layers,
-            dropout=dropout,
-            bidirectional=bidirectional,
-            sos_id=sos_id,
-            eos_id=eos_id,
+        self.model = Image2Latex(
+            n_class,
+            enc_dim,
+            emb_dim,
+            dec_dim,
+            attn_dim,
+            num_layers,
+            dropout,
+            bidirectional,
+            decode_type,
+            text,
+            beam_width,
+            sos_id,
+            eos_id,
         )
-        self.init_h = nn.Linear(enc_dim, dec_dim)
-        self.init_c = nn.Linear(enc_dim, dec_dim)
-        assert decode_type in ["greedy", "beam"]
-        self.decode_type = decode_type
+        self.criterion = nn.CrossEntropyLoss()
+        self.lr = lr
+        self.total_steps = total_steps
         self.text = text
-        self.beam_width = beam_width
+        self.max_length = 150
+        self.save_hyperparameters()
 
-    def init_decoder_hidden_state(self, V: Tensor):
-        """
-            return (h, c)
-        """
-        encoder_mean = V.mean(dim=[2, 3])
-        h = torch.tanh(self.init_h(encoder_mean))
-        c = torch.tanh(self.init_c(encoder_mean))
-        return h, c
-
-    def forward(self, x: Tensor, y: Tensor, teacher_forcing_ratio: float = 0.5):
-        V = self.encoder(x)
-        h, c = self.init_decoder_hidden_state(V)
-
-        bs, target_len = y.size()
-        outputs = torch.zeros(target_len, bs, self.n_class).to(x.device)
-
-        o = None
-        _input = y[:, 0]  # get first element of all batch
-        for t in range(1, target_len):
-            _input = _input.unsqueeze(1)
-
-            output, (h, c), o = self.decoder(_input, V, h, c, o)
-
-            outputs[t] = output
-
-            teacher_force = random.random() < teacher_forcing_ratio
-
-            top_1 = output.argmax(-1)
-
-            _input = y[:, t] if teacher_force else top_1
-
-        return outputs.permute(1, 0, 2)
-
-    def decode(self, x: Tensor, max_length: int = 150):
-        if self.decode_type == "greedy":
-            predict = self.decode_greedy(x, max_length)
-        elif self.decode_type == "beam_search":
-            predict = self.decode_beam_search(x, self.beam_width, max_length)
-        return self.text.int2text(predict)
-
-    def decode_greedy(self, x: Tensor, max_length: int = 150):
-        V = self.encoder(x)
-        h, c = self.init_decoder_hidden_state(V)
-
-        bs = V.size(0)
-        assert bs == 1, "Batch size must be 1"
-        predict = []
-
-        o = None
-        _input = (torch.zeros(bs) + self.decoder.sos_id).to(
-            dtype=torch.long, device=x.device
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, betas=(0.9, 0.98))
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer,
+            max_lr=lr,
+            pct_start=0.3,
+            total_steps=self.total_steps,
+            verbose=False,
         )
-        for t in range(1, max_length):
-            _input = _input.unsqueeze(1)
+        scheduler = {
+            "scheduler": scheduler,
+            "interval": "step",  # or 'epoch'
+            "frequency": 1,
+        }
+        return [optimizer], [scheduler]
 
-            output, (h, c), o = self.decoder(_input, V, h, c, o)
+    def forward(self, images, formulas, formula_len):
+        return self.model(images, formulas, formula_len)
 
-            top_1 = output.argmax(-1)  # greedy decode
+    def training_step(self, batch, batch_idx):
+        images, formulas, formula_len = batch
 
-            if top_1.item() == self.decoder.eos_id:
-                break
+        formulas_in = formulas[:, :-1]
+        formulas_out = formulas[:, 1:]
 
-            predict.append(top_1)
+        outputs = self.model(images, formulas_in, formula_len)
 
-            _input = top_1
+        bs, t, _ = outputs.size()
+        _o = outputs.reshape(bs * t, -1)
+        _t = formulas_out.reshape(-1)
+        loss = self.criterion(_o, _t)
 
-        return torch.LongTensor(predict)
+        self.log("train loss", loss)
+        self.log("lr", self.lr)
 
-    def decode_beam_search(self, x: Tensor, beam_width: int = 5, max_length: int = 150):
-        V = self.encoder(x)
-        h, c = self.init_decoder_hidden_state(V)
+        return loss
 
-        bs = V.size(0)
-        assert bs == 1, "Batch size must be 1"
-        list_predict = []
+    def validation_step(self, batch, batch_idx):
+        images, formulas, formula_len = batch
 
-        _input = (torch.zeros(bs) + self.decoder.sos_id).to(
-            dtype=torch.long, device=x.device
+        formulas_in = formulas[:, :-1]
+        formulas_out = formulas[:, 1:]
+
+        outputs = self.model(images, formulas_in, formula_len)
+
+        bs, t, _ = outputs.size()
+        _o = outputs.reshape(bs * t, -1)
+        _t = formulas_out.reshape(-1)
+        loss = self.criterion(_o, _t)
+        perplexity = torch.exp(loss)
+
+        predicts = [
+            self.text.tokenize(self.model.decode(i.unsqueeze(0), self.max_length))
+            for i in images
+        ]
+        truths = [self.text.tokenize(self.text.int2text(i)) for i in formulas]
+
+        edit_dist = torch.mean(
+            torch.Tensor(
+                [
+                    edit_distance(pre, tru) / len(tru)
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
         )
 
-        q = PriorityQueue()
-        q.put((-1, _input, h, c, o))
+        bleu4 = bleu_score(predicts, truths)
 
-        for t in range(1, max_length):
+        self.log("val_loss", loss)
+        self.log("val_perplexity", perplexity)
+        self.log("val_edit_distance", edit_dist)
+        self.log("val_bleu4", bleu4)
 
-            step_q = PriorityQueue()
-            while not q.empty():
-                prob, _input, h, c, o = q.get()
-                prob = -prob
+        return loss
 
-                output, (h, c), o = self.decoder(_input, V, h, c, o)
+    def test_step(self, batch, batch_idx):
+        images, formulas, formula_len = batch
+
+        formulas_in = formulas[:, :-1]
+        formulas_out = formulas[:, 1:]
+
+        outputs = self.model(images, formulas_in, formula_len)
+
+        bs, t, _ = outputs.size()
+        _o = outputs.reshape(bs * t, -1)
+        _t = formulas_out.reshape(-1)
+        loss = self.criterion(_o, _t)
+        perplexity = torch.exp(loss)
+
+        predicts = [
+            self.text.tokenize(self.model.decode(i.unsqueeze(0), self.max_length))
+            for i in images
+        ]
+        truths = [self.text.tokenize(self.text.int2text(i)) for i in formulas]
+
+        edit_dist = torch.mean(
+            torch.Tensor(
+                [
+                    edit_distance(pre, tru) / len(tru)
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
+        )
+
+        bleu4 = bleu_score(predicts, truths)
+
+        self.log("test_loss", loss)
+        self.log("test_perplexity", perplexity)
+        self.log("test_edit_distance", edit_dist)
+        self.log("test_bleu4", bleu4)
+
+        return loss

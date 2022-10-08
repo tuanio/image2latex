@@ -135,7 +135,8 @@ movielens-1m/
 
 outputs/
 
-main.py
 test.py
 im2latex100k/
 tb_logs/
+wandb/
+lightning_logs/

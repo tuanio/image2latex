@@ -5,19 +5,41 @@ from torch import nn, Tensor
 class Encoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
-        self.conv = nn.Sequential(
-            nn.Conv2d(3, 64, 3, 1),
+        self.feature_encoder = nn.Sequential(
+            nn.Conv2d(1, 64, 1, 1),
             nn.Conv2d(64, 128, 3, 1),
+            nn.MaxPool2d(2, 2),
             nn.Conv2d(128, 256, 3, 1),
+            nn.BatchNorm2d(256),
             nn.Conv2d(256, 256, 3, 1),
             nn.MaxPool2d(2, 1),
             nn.Conv2d(256, 512, 3, 1),
+            nn.BatchNorm2d(512),
             nn.MaxPool2d(1, 2),
-            nn.Conv2d(512, enc_dim, 3, 1),
+            nn.Conv2d(512, 512, 3, 1),
+            nn.BatchNorm2d(512),
         )
+
+        self.row_encoder = nn.LSTM(512, enc_dim, batch_first=True, bidirectional=True)
+
+        enc_dim *= 2  # bidirectional = True
 
     def forward(self, x: Tensor):
         """
             x: (bs, c, w, h)
         """
-        return self.conv(x)
+        conv_out = self.feature_encoder(x)  # (bs, c, w, h)
+        conv_out = conv_out.permute(0, 2, 3, 1)  # (bs, w, h, c)
+
+        bs, w, h, c = conv_out.size()
+        rnn_out = []
+        for row in range(w):
+            row_data = conv_out[:, row, :, :]  # take a row data
+            row_out, (h, c) = self.row_encoder(row_data)
+            rnn_out.append(row_out)
+
+        encoder_out = torch.stack(rnn_out, dim=1)
+        bs, _, _, d = encoder_out.size()
+        encoder_out = encoder_out.view(bs, -1, d)
+
+        return encoder_out
