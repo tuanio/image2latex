@@ -83,7 +83,6 @@ class Image2LatexModel(pl.LightningModule):
         loss = self.criterion(_o, _t)
 
         self.log("train loss", loss)
-        self.log("lr", self.lr)
 
         return loss
 
