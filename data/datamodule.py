@@ -17,7 +17,7 @@ class DataModule(pl.LightningDataModule):
     def train_dataloader(self):
         return DataLoader(
             self.train_set,
-            shuffle=False,
+            shuffle=True,
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
         )
