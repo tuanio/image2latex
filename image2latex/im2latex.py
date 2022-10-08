@@ -113,7 +113,7 @@ class Image2Latex(nn.Module):
         for t in range(max_length):
             new_candidates = []
             for inp, state, log_prob in list_candidate:
-                y = torch.LongTensor([inp[-1]]).view(bs, -1)
+                y = torch.LongTensor([inp[-1]]).view(bs, -1).to(device=x.device)
                 out, hidden_state = self.decoder(y, encoder_out, state)
 
                 topk = out.topk(self.beam_width)
