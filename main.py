@@ -24,6 +24,9 @@ if __name__ == "__main__":
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--val", action="store_true")
     parser.add_argument("--test", action="store_true")
+    parser.add_argument("--train-sample", type=int, default=5000)
+    parser.add_argument("--val-sample", type=int, default=1000)
+    parser.add_argument("--test-sample", type=int, default=1000)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--max-epochs", type=int, default=15)
     parser.add_argument("--log-step", type=int, default=100)
@@ -61,16 +64,19 @@ if __name__ == "__main__":
         data_path=args.data_path,
         img_path=args.img_path,
         data_type="train",
-        n_sample=100,
+        n_sample=args.train_sample,
     )
     val_set = LatexDataset(
         data_path=args.data_path,
         img_path=args.img_path,
         data_type="validate",
-        n_sample=100,
+        n_sample=args.val_sample,
     )
     test_set = LatexDataset(
-        data_path=args.data_path, img_path=args.img_path, data_type="test", n_sample=100
+        data_path=args.data_path,
+        img_path=args.img_path,
+        data_type="test",
+        n_sample=args.test_sample,
     )
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
