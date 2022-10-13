@@ -2,7 +2,7 @@ import torch
 from torch import nn, Tensor
 
 
-class Encoder(nn.Module):
+class ConvWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.feature_encoder = nn.Sequential(
@@ -22,7 +22,7 @@ class Encoder(nn.Module):
 
         self.row_encoder = nn.LSTM(512, enc_dim, batch_first=True, bidirectional=True)
 
-        enc_dim *= 2  # bidirectional = True
+        self.enc_dim = enc_dim * 2  # bidirectional = True
 
     def forward(self, x: Tensor):
         """
@@ -42,4 +42,29 @@ class Encoder(nn.Module):
         bs, _, _, d = encoder_out.size()
         encoder_out = encoder_out.view(bs, -1, d)
 
+        return encoder_out
+
+class ConvEncoder(nn.Module):
+    def __init__(self, enc_dim: int):
+        super().__init__()
+        self.feature_encoder = nn.Sequential(
+            nn.Conv2d(1, 64, 3, 1),
+            nn.Conv2d(64, 128, 3, 1),
+            nn.Conv2d(128, 256, 3, 1),
+            nn.Conv2d(256, 256, 3, 1),
+            nn.MaxPool2d(2, 1),
+            nn.Conv2d(256, 512, 3, 1),
+            nn.MaxPool2d(1, 2),
+            nn.Conv2d(512, enc_dim, 3, 1),
+        )
+        self.enc_dim = enc_dim
+
+    def forward(self, x: Tensor):
+        """
+            x: (bs, c, w, h)
+        """
+        encoder_out = self.feature_encoder(x)  # (bs, c, w, h)
+        encoder_out = conv_out.permute(0, 2, 3, 1)  # (bs, w, h, c)
+        bs, _, _, d = encoder_out.size()
+        encoder_out = encoder_out.view(bs, -1, d)
         return encoder_out

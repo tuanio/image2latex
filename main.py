@@ -33,6 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=0.01)
     parser.add_argument("--random-state", type=int, default=12)
     parser.add_argument("--ckpt-path", type=str, default=None)
+    parser.add_argument("--enc-type", type=str, default='conv_row_encoder')
+    # conv_row_encoder, conv_encoder
     parser.add_argument("--enc-dim", type=int, default=512)
     parser.add_argument("--emb-dim", type=int, default=80)
     parser.add_argument("--attn-dim", type=int, default=512)
@@ -91,6 +93,7 @@ if __name__ == "__main__":
         total_steps=total_steps,
         n_class=text.n_class,
         enc_dim=args.enc_dim,
+        enc_type=args.enc_type,
         emb_dim=args.emb_dim,
         dec_dim=args.dec_dim,
         attn_dim=args.attn_dim,

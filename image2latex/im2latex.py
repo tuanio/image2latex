@@ -1,7 +1,7 @@
 import random
 import torch
 from torch import nn, Tensor
-from . import Encoder, Decoder
+from . import ConvWithRowEncoder, ConvEncoder, Decoder
 from .text import Text
 
 
@@ -10,6 +10,7 @@ class Image2Latex(nn.Module):
         self,
         n_class: int,
         enc_dim: int = 512,
+        enc_type: str = 'conv_row_encoder',
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -22,10 +23,14 @@ class Image2Latex(nn.Module):
         sos_id: int = 1,
         eos_id: int = 2,
     ):
+        assert enc_type in ['conv_row_encoder', 'conv_encoder'], 'Not found encoder'
         super().__init__()
         self.n_class = n_class
-        self.encoder = Encoder(enc_dim=enc_dim)
-        enc_dim *= 2  # bidirectional
+        if enc_type == 'conv_row_encoder':
+            self.encoder = ConvWithRowEncoder(enc_dim=enc_dim)
+        elif enc_type == 'conv_encoder':
+            self.encoder = ConvEncoder(enc_dim=enc_dim)
+        enc_dim = self.encoder.enc_dim
         self.num_layers = num_layers
         self.decoder = Decoder(
             n_class=n_class,

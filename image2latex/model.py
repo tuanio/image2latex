@@ -14,6 +14,7 @@ class Image2LatexModel(pl.LightningModule):
         total_steps,
         n_class: int,
         enc_dim: int = 512,
+        enc_type: str = 'conv_row_encoder',
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -31,6 +32,7 @@ class Image2LatexModel(pl.LightningModule):
         self.model = Image2Latex(
             n_class,
             enc_dim,
+            enc_type,
             emb_dim,
             dec_dim,
             attn_dim,
