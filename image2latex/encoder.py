@@ -1,5 +1,6 @@
 import torch
 from torch import nn, Tensor
+import torchvision
 
 
 class ConvWithRowEncoder(nn.Module):
@@ -105,6 +106,7 @@ class ResNetEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
+        self.resnet.conv1.in_channels = 1 # one channel
         self.resnet.fc = nn.Linear(2048, enc_dim)
         self.enc_dim = enc_dim
 
@@ -119,6 +121,7 @@ class ResNetWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
+        self.resnet.conv1.in_channels = 1 # one channel
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
         self.row_encoder = nn.LSTM(
