@@ -116,7 +116,7 @@ if __name__ == "__main__":
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
 
 
-    accumulate_grad_batches = args.accumulate_batch / args.batch_size
+    accumulate_grad_batches = args.accumulate_batch // args.batch_size
     trainer = pl.Trainer(
         logger=wandb_logger,
         callbacks=[lr_monitor],
