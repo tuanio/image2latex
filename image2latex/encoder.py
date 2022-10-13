@@ -116,7 +116,9 @@ class ResNetEncoder(nn.Module):
         """
             x: (bs, c, w, h)
         """
-        return self.resnet(x)
+        out = self.resnet(x)
+        out = out.permute(0, 2, 3, 1)
+        return out
 
 
 class ResNetWithRowEncoder(nn.Module):
