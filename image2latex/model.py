@@ -27,6 +27,7 @@ class Image2LatexModel(pl.LightningModule):
         sos_id: int = 1,
         eos_id: int = 2,
         log_step: int = 100,
+        log_text: bool = False
     ):
         super().__init__()
         self.model = Image2Latex(
@@ -51,6 +52,7 @@ class Image2LatexModel(pl.LightningModule):
         self.text = text
         self.max_length = 150
         self.log_step = log_step
+        self.log_text = log_text
         self.save_hyperparameters()
 
     def configure_optimizers(self):
@@ -126,7 +128,7 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
-        if batch_idx % self.log_step == 0:
+        if self.log_text and batch_idx % self.log_step == 0:
             log_tot = 5
             for truth, pred in zip(truths[:log_tot], predicts[:log_tot]):
                 print("=" * 20)
@@ -180,7 +182,7 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
-        if batch_idx % self.log_step == 0:
+        if self.log_text and batch_idx % self.log_step == 0:
             log_tot = 5
             for truth, pred in zip(truths[:log_tot], predicts[:log_tot]):
                 print("=" * 20)

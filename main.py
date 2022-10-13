@@ -16,7 +16,7 @@ import numpy as np
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="training image2latex")
     parser.add_argument("--batch-size", type=int, default=16)
-    parser.add_argument("--accumulate-batch", type=int, default=128)
+    parser.add_argument("--accumulate-batch", type=int, default=32)
     parser.add_argument("--data-path", type=str, help="data path")
     parser.add_argument("--img-path", type=str, help="data path")
     parser.add_argument(
@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--val", action="store_true")
     parser.add_argument("--test", action="store_true")
+    parser.add_argument("--log-text", action="store_true")
     parser.add_argument("--train-sample", type=int, default=5000)
     parser.add_argument("--val-sample", type=int, default=1000)
     parser.add_argument("--test-sample", type=int, default=1000)
@@ -105,7 +106,8 @@ if __name__ == "__main__":
         decode_type=args.decode_type,
         text=text,
         beam_width=args.beam_width,
-        log_step=args.log_step
+        log_step=args.log_step,
+        log_text=args.log_text
     )
 
     wandb_logger = pl.loggers.WandbLogger(
@@ -113,6 +115,8 @@ if __name__ == "__main__":
     )
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
 
+
+    accumulate_grad_batches = args.accumulate_batch / args.batch_size
     trainer = pl.Trainer(
         logger=wandb_logger,
         callbacks=[lr_monitor],
@@ -120,7 +124,7 @@ if __name__ == "__main__":
         accelerator="auto",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
-        accumulate_grad_batches=args.accumulate_batch
+        accumulate_grad_batches=accumulate_grad_batches
     )
 
     ckpt_path = args.ckpt_path
