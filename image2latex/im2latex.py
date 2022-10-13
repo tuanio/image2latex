@@ -1,7 +1,8 @@
 import random
 import torch
 from torch import nn, Tensor
-from . import ConvWithRowEncoder, ConvEncoder, Decoder
+from .decoder import Decoder
+from .encoder import *
 from .text import Text
 
 
