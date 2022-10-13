@@ -10,7 +10,7 @@ class LatexDataset(Dataset):
         assert data_type in ["train", "test", "validate"], "Not found data type"
         csv_path = data_path + f"/im2latex_{data_type}.csv"
         df = pd.read_csv(csv_path)
-        if not n_sample:
+        if n_sample:
             df = df.head(n_sample)
         df["image"] = df.image.map(lambda x: img_path + "/" + x)
         self.walker = df.to_dict("records")
