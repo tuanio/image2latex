@@ -28,6 +28,8 @@ class Image2Latex(nn.Module):
             "conv_row_encoder",
             "conv_encoder",
             "conv_bn_encoder",
+            "resnet_encoder",
+            "resnet_row_encoder",
         ], "Not found encoder"
         super().__init__()
         self.n_class = n_class
@@ -37,6 +39,10 @@ class Image2Latex(nn.Module):
             self.encoder = ConvEncoder(enc_dim=enc_dim)
         elif enc_type == "conv_bn_encoder":
             self.encoder = ConvBNEncoder(enc_dim=enc_dim)
+        elif enc_type == "resnet_encoder":
+            self.encoder = ResNetEncoder(enc_dim=enc_dim)
+        elif enc_type == "resnet_row_encoder":
+            self.encoder = ResNetWithRowEncoder(enc_dim=enc_dim)
         enc_dim = self.encoder.enc_dim
         self.num_layers = num_layers
         self.decoder = Decoder(

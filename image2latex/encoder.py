@@ -99,3 +99,48 @@ class ConvBNEncoder(nn.Module):
         bs, _, _, d = encoder_out.size()
         encoder_out = encoder_out.view(bs, -1, d)
         return encoder_out
+
+
+class ResNetEncoder(nn.Module):
+    def __init__(self, enc_dim: int):
+        super().__init__()
+        self.resnet = torchvision.models.resnet152()
+        self.resnet.fc = nn.Linear(2048, enc_dim)
+        self.enc_dim = enc_dim
+
+    def forward(self, x: Tensor):
+        """
+            x: (bs, c, w, h)
+        """
+        return self.resnet(x)
+
+
+class ResNetWithRowEncoder(nn.Module):
+    def __init__(self, enc_dim: int):
+        super().__init__()
+        self.resnet = torchvision.models.resnet152()
+        self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
+
+        self.row_encoder = nn.LSTM(
+            enc_dim, enc_dim, batch_first=True, bidirectional=True
+        )
+
+        self.enc_dim = enc_dim * 2  # bidirectional = True
+
+    def forward(self, x: Tensor):
+        """
+            x: (bs, c, w, h)
+        """
+        conv_out = self.resnet(x)
+        conv_out = conv_out.permute(0, 2, 3, 1)
+        bs, w, h, c = conv_out.size()
+        rnn_out = []
+        for row in range(w):
+            row_data = conv_out[:, row, :, :]  # take a row data
+            row_out, (h, c) = self.row_encoder(row_data)
+            rnn_out.append(row_out)
+
+        encoder_out = torch.stack(rnn_out, dim=1)
+        bs, _, _, d = encoder_out.size()
+        encoder_out = encoder_out.view(bs, -1, d)
+        return encoder_out
