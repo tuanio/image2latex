@@ -110,6 +110,7 @@ class ResNetEncoder(nn.Module):
             1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
         )
         self.resnet.fc = nn.Linear(2048, enc_dim)
+        self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
         self.enc_dim = enc_dim
 
     def forward(self, x: Tensor):
