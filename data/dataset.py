@@ -5,7 +5,9 @@ from torchvision import transforms as tvt
 
 
 class LatexDataset(Dataset):
-    def __init__(self, data_path, img_path, data_type: str, n_sample: int = None, dataset="100k"):
+    def __init__(
+        self, data_path, img_path, data_type: str, n_sample: int = None, dataset="100k"
+    ):
         super().__init__()
         assert data_type in ["train", "test", "validate"], "Not found data type"
         csv_path = data_path + f"/im2latex_{data_type}.csv"

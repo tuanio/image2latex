@@ -10,7 +10,7 @@ class Image2Latex(nn.Module):
         self,
         n_class: int,
         enc_dim: int = 512,
-        enc_type: str = 'conv_row_encoder',
+        enc_type: str = "conv_row_encoder",
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -23,13 +23,19 @@ class Image2Latex(nn.Module):
         sos_id: int = 1,
         eos_id: int = 2,
     ):
-        assert enc_type in ['conv_row_encoder', 'conv_encoder'], 'Not found encoder'
+        assert enc_type in [
+            "conv_row_encoder",
+            "conv_encoder",
+            "conv_bn_encoder",
+        ], "Not found encoder"
         super().__init__()
         self.n_class = n_class
-        if enc_type == 'conv_row_encoder':
+        if enc_type == "conv_row_encoder":
             self.encoder = ConvWithRowEncoder(enc_dim=enc_dim)
-        elif enc_type == 'conv_encoder':
+        elif enc_type == "conv_encoder":
             self.encoder = ConvEncoder(enc_dim=enc_dim)
+        elif enc_type == "conv_bn_encoder":
+            self.encoder = ConvBNEncoder(enc_dim=enc_dim)
         enc_dim = self.encoder.enc_dim
         self.num_layers = num_layers
         self.decoder = Decoder(

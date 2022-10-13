@@ -44,6 +44,7 @@ class ConvWithRowEncoder(nn.Module):
 
         return encoder_out
 
+
 class ConvEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
@@ -56,6 +57,36 @@ class ConvEncoder(nn.Module):
             nn.Conv2d(256, 512, 3, 1),
             nn.MaxPool2d(1, 2),
             nn.Conv2d(512, enc_dim, 3, 1),
+        )
+        self.enc_dim = enc_dim
+
+    def forward(self, x: Tensor):
+        """
+            x: (bs, c, w, h)
+        """
+        encoder_out = self.feature_encoder(x)  # (bs, c, w, h)
+        encoder_out = encoder_out.permute(0, 2, 3, 1)  # (bs, w, h, c)
+        bs, _, _, d = encoder_out.size()
+        encoder_out = encoder_out.view(bs, -1, d)
+        return encoder_out
+
+
+class ConvBNEncoder(nn.Module):
+    def __init__(self, enc_dim: int):
+        super().__init__()
+        self.feature_encoder = nn.Sequential(
+            nn.Conv2d(1, 64, 3, 1),
+            nn.Conv2d(64, 128, 3, 1),
+            nn.BatchNorm2d(128),
+            nn.Conv2d(128, 256, 3, 1),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 256, 3, 1),
+            nn.MaxPool2d(2, 1),
+            nn.Conv2d(256, 512, 3, 1),
+            nn.BatchNorm2d(512),
+            nn.MaxPool2d(1, 2),
+            nn.Conv2d(512, enc_dim, 3, 1),
+            nn.BatchNorm2d(enc_dim),
         )
         self.enc_dim = enc_dim
 

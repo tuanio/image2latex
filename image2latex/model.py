@@ -14,7 +14,7 @@ class Image2LatexModel(pl.LightningModule):
         total_steps,
         n_class: int,
         enc_dim: int = 512,
-        enc_type: str = 'conv_row_encoder',
+        enc_type: str = "conv_row_encoder",
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -27,7 +27,7 @@ class Image2LatexModel(pl.LightningModule):
         sos_id: int = 1,
         eos_id: int = 2,
         log_step: int = 100,
-        log_text: bool = False
+        log_text: bool = False,
     ):
         super().__init__()
         self.model = Image2Latex(
@@ -58,10 +58,7 @@ class Image2LatexModel(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, betas=(0.9, 0.98))
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            optimizer,
-            max_lr=self.lr,
-            total_steps=self.total_steps,
-            verbose=False,
+            optimizer, max_lr=self.lr, total_steps=self.total_steps, verbose=False,
         )
         scheduler = {
             "scheduler": scheduler,
@@ -121,10 +118,7 @@ class Image2LatexModel(pl.LightningModule):
 
         bleu4 = torch.mean(
             torch.Tensor(
-                [
-                    bleu_score([pre], [[tru]])
-                    for pre, tru in zip(predicts, truths)
-                ]
+                [bleu_score([pre], [[tru]]) for pre, tru in zip(predicts, truths)]
             )
         )
 
@@ -172,13 +166,10 @@ class Image2LatexModel(pl.LightningModule):
                 ]
             )
         )
-        
+
         bleu4 = torch.mean(
             torch.Tensor(
-                [
-                    bleu_score([pre], [[tru]])
-                    for pre, tru in zip(predicts, truths)
-                ]
+                [bleu_score([pre], [[tru]]) for pre, tru in zip(predicts, truths)]
             )
         )
 

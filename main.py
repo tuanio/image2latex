@@ -35,8 +35,8 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=0.01)
     parser.add_argument("--random-state", type=int, default=12)
     parser.add_argument("--ckpt-path", type=str, default=None)
-    parser.add_argument("--enc-type", type=str, default='conv_row_encoder')
-    # conv_row_encoder, conv_encoder
+    parser.add_argument("--enc-type", type=str, default="conv_row_encoder")
+    # conv_row_encoder, conv_encoder, conv_bn_encoder
     parser.add_argument("--enc-dim", type=int, default=512)
     parser.add_argument("--emb-dim", type=int, default=80)
     parser.add_argument("--attn-dim", type=int, default=512)
@@ -107,14 +107,13 @@ if __name__ == "__main__":
         text=text,
         beam_width=args.beam_width,
         log_step=args.log_step,
-        log_text=args.log_text
+        log_text=args.log_text,
     )
 
     wandb_logger = pl.loggers.WandbLogger(
         project="image2latex", name=args.model_name, log_model="all"
     )
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
-
 
     accumulate_grad_batches = args.accumulate_batch // args.batch_size
     trainer = pl.Trainer(
@@ -124,7 +123,7 @@ if __name__ == "__main__":
         accelerator="auto",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
-        accumulate_grad_batches=accumulate_grad_batches
+        accumulate_grad_batches=accumulate_grad_batches,
     )
 
     ckpt_path = args.ckpt_path
