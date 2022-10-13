@@ -15,7 +15,8 @@ import numpy as np
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="training image2latex")
-    parser.add_argument("--batch-size", type=int, default=10)
+    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--accumulate-batch", type=int, default=128)
     parser.add_argument("--data-path", type=str, help="data path")
     parser.add_argument("--img-path", type=str, help="data path")
     parser.add_argument(
@@ -119,6 +120,7 @@ if __name__ == "__main__":
         accelerator="auto",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
+        accumulate_grad_batches=args.accumulate_batch
     )
 
     ckpt_path = args.ckpt_path
