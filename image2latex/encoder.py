@@ -64,7 +64,7 @@ class ConvEncoder(nn.Module):
             x: (bs, c, w, h)
         """
         encoder_out = self.feature_encoder(x)  # (bs, c, w, h)
-        encoder_out = conv_out.permute(0, 2, 3, 1)  # (bs, w, h, c)
+        encoder_out = encoder_out.permute(0, 2, 3, 1)  # (bs, w, h, c)
         bs, _, _, d = encoder_out.size()
         encoder_out = encoder_out.view(bs, -1, d)
         return encoder_out
