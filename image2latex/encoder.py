@@ -109,8 +109,8 @@ class ResNetEncoder(nn.Module):
         self.resnet.conv1 = nn.Conv2d(
             1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
         )
-        self.resnet.fc = nn.Linear(2048, enc_dim)
-        self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
+        self.resnet = nn.Sequential(*list(self.resnet.children())[:-1])
+        self.fc = nn.Linear(2048, enc_dim)
         self.enc_dim = enc_dim
 
     def forward(self, x: Tensor):
@@ -119,6 +119,9 @@ class ResNetEncoder(nn.Module):
         """
         out = self.resnet(x)
         out = out.permute(0, 2, 3, 1)
+        out = self.fc(out)
+        bs, _, _, d = out.size()
+        out = out.view(bs, -1, d)
         return out
 
 
@@ -131,9 +134,7 @@ class ResNetWithRowEncoder(nn.Module):
         )
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
-        self.row_encoder = nn.LSTM(
-            2048, enc_dim, batch_first=True, bidirectional=True
-        )
+        self.row_encoder = nn.LSTM(2048, enc_dim, batch_first=True, bidirectional=True)
 
         self.enc_dim = enc_dim * 2  # bidirectional = True
 
