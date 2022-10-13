@@ -106,7 +106,9 @@ class ResNetEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
-        self.resnet.conv1.in_channels = 1 # one channel
+        self.resnet.conv1 = nn.Conv2d(
+            1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+        )
         self.resnet.fc = nn.Linear(2048, enc_dim)
         self.enc_dim = enc_dim
 
@@ -121,7 +123,9 @@ class ResNetWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
-        self.resnet.conv1.in_channels = 1 # one channel
+        self.resnet.conv1 = nn.Conv2d(
+            1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+        )
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
         self.row_encoder = nn.LSTM(
