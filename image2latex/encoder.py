@@ -129,7 +129,7 @@ class ResNetWithRowEncoder(nn.Module):
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
         self.row_encoder = nn.LSTM(
-            enc_dim, enc_dim, batch_first=True, bidirectional=True
+            2048, enc_dim, batch_first=True, bidirectional=True
         )
 
         self.enc_dim = enc_dim * 2  # bidirectional = True
