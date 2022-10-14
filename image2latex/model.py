@@ -2,6 +2,7 @@ import torch
 from torch import nn, Tensor
 from .im2latex import Image2Latex
 from .text import Text
+from .utils import exact_match
 import pytorch_lightning as pl
 from torchaudio.functional import edit_distance
 from torchtext.data.metrics import bleu_score
@@ -99,7 +100,6 @@ class Image2LatexModel(pl.LightningModule):
         _o = outputs.reshape(bs * t, -1)
         _t = formulas_out.reshape(-1)
         loss = self.criterion(_o, _t)
-        perplexity = torch.exp(loss)
 
         predicts = [
             self.text.tokenize(self.model.decode(i.unsqueeze(0), self.max_length))
@@ -122,6 +122,10 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
+        em = torch.mean(
+            torch.Tensor([exact_match(tru, pre) for pre, tru in zip(predicts, truths)])
+        )
+
         if self.log_text and batch_idx % self.log_step == 0:
             for truth, pred in zip(truths, predicts):
                 print("=" * 20)
@@ -130,9 +134,9 @@ class Image2LatexModel(pl.LightningModule):
             print()
 
         self.log("val_loss", loss)
-        self.log("val_perplexity", perplexity)
         self.log("val_edit_distance", edit_dist)
         self.log("val_bleu4", bleu4)
+        self.log("val_exact_match", em)
 
         return loss
 
@@ -148,7 +152,6 @@ class Image2LatexModel(pl.LightningModule):
         _o = outputs.reshape(bs * t, -1)
         _t = formulas_out.reshape(-1)
         loss = self.criterion(_o, _t)
-        perplexity = torch.exp(loss)
 
         predicts = [
             self.text.tokenize(self.model.decode(i.unsqueeze(0), self.max_length))
@@ -171,6 +174,10 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
+        em = torch.mean(
+            torch.Tensor([exact_match(tru, pre) for pre, tru in zip(predicts, truths)])
+        )
+
         if (self.log_text or True) and batch_idx % self.log_step == 0:
             for truth, pred in zip(truths, predicts):
                 print("=" * 20)
@@ -179,8 +186,8 @@ class Image2LatexModel(pl.LightningModule):
             print()
 
         self.log("test_loss", loss)
-        self.log("test_perplexity", perplexity)
         self.log("test_edit_distance", edit_dist)
         self.log("test_bleu4", bleu4)
+        self.log("test_exact_match", em)
 
         return loss
