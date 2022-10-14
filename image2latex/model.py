@@ -123,11 +123,9 @@ class Image2LatexModel(pl.LightningModule):
         )
 
         if self.log_text and batch_idx % self.log_step == 0:
-            log_tot = 5
-            for truth, pred in zip(truths[:log_tot], predicts[:log_tot]):
+            for truth, pred in zip(truths, predicts):
                 print("=" * 20)
-                print(f"Truth: [{' '.join(truth)}]")
-                print(f"Predict: [{' '.join(pred)}]")
+                print(f"Truth: [{' '.join(truth)}] | Predict: [{' '.join(pred)}]")
                 print("=" * 20)
             print()
 
@@ -173,12 +171,10 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
-        if self.log_text and batch_idx % self.log_step == 0:
-            log_tot = 5
-            for truth, pred in zip(truths[:log_tot], predicts[:log_tot]):
+        if (self.log_text or True) and batch_idx % self.log_step == 0:
+            for truth, pred in zip(truths, predicts):
                 print("=" * 20)
-                print(f"Truth: [{' '.join(truth)}]")
-                print(f"Predict: [{' '.join(pred)}]")
+                print(f"Truth: [{' '.join(truth)}] | Predict: [{' '.join(pred)}]")
                 print("=" * 20)
             print()
 
