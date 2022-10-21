@@ -6,13 +6,22 @@ from torchvision import transforms as tvt
 
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, train_set, val_set, test_set, batch_size=20, text=None):
+    def __init__(
+        self,
+        train_set,
+        val_set,
+        test_set,
+        num_workers: int = 1,
+        batch_size=20,
+        text=None,
+    ):
         super().__init__()
         self.train_set = train_set
         self.val_set = val_set
         self.test_set = test_set
         self.batch_size = batch_size
         self.text = text
+        self.num_workers = num_workers
 
     def train_dataloader(self):
         return DataLoader(
@@ -21,6 +30,7 @@ class DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
             drop_last=True,
+            num_workers=self.num_workers,
         )
 
     def val_dataloader(self):
@@ -29,6 +39,7 @@ class DataModule(pl.LightningDataModule):
             shuffle=False,
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
+            num_workers=self.num_workers,
         )
 
     def test_dataloader(self):
@@ -37,6 +48,7 @@ class DataModule(pl.LightningDataModule):
             shuffle=False,
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
+            num_workers=self.num_workers,
         )
 
     def collate_fn(self, batch):

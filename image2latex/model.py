@@ -86,7 +86,7 @@ class Image2LatexModel(pl.LightningModule):
         _t = formulas_out.reshape(-1)
         loss = self.criterion(_o, _t)
 
-        self.log("train loss", loss)
+        self.log("train loss", loss, sync_dist=True)
 
         return loss
 
@@ -144,12 +144,12 @@ class Image2LatexModel(pl.LightningModule):
                 print("=" * 20)
             print()
 
-        self.log("val_loss", loss)
-        self.log("val_edit_distance", edit_dist)
-        self.log("val_bleu4", bleu4)
-        self.log("val_exact_match", em)
+        self.log("val_loss", loss, sync_dist=True)
+        self.log("val_edit_distance", edit_dist, sync_dist=True)
+        self.log("val_bleu4", bleu4, sync_dist=True)
+        self.log("val_exact_match", em, sync_dist=True)
 
-        return loss
+        return edit_dist, bleu4, em, loss
 
     def test_step(self, batch, batch_idx):
         images, formulas, formula_len = batch
@@ -205,9 +205,9 @@ class Image2LatexModel(pl.LightningModule):
                 print("=" * 20)
             print()
 
-        self.log("test_loss", loss)
-        self.log("test_edit_distance", edit_dist)
-        self.log("test_bleu4", bleu4)
-        self.log("test_exact_match", em)
+        self.log("test_loss", loss, sync_dist=True)
+        self.log("test_edit_distance", edit_dist, sync_dist=True)
+        self.log("test_bleu4", bleu4, sync_dist=True)
+        self.log("test_exact_match", em, sync_dist=True)
 
-        return loss
+        return edit_dist, bleu4, em, loss

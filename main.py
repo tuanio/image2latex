@@ -52,6 +52,7 @@ if __name__ == "__main__":
     parser.add_argument("--num-layers", type=int, default=1)
     parser.add_argument("--model-name", type=str, default="conv_lstm")
     parser.add_argument("--grad-clip", type=int, default=0)
+    parser.add_argument("--num-workers", type=int, default=4)
 
     args = parser.parse_args()
 
@@ -70,6 +71,7 @@ if __name__ == "__main__":
         data_type="train",
         n_sample=args.train_sample,
         dataset=args.dataset,
+        num_workers=args.num_workers
     )
     val_set = LatexDataset(
         data_path=args.data_path,
@@ -77,6 +79,7 @@ if __name__ == "__main__":
         data_type="validate",
         n_sample=args.val_sample,
         dataset=args.dataset,
+        num_workers=args.num_workers
     )
     test_set = LatexDataset(
         data_path=args.data_path,
@@ -84,6 +87,7 @@ if __name__ == "__main__":
         data_type="test",
         n_sample=args.test_sample,
         dataset=args.dataset,
+        num_workers=args.num_workers
     )
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
@@ -124,7 +128,7 @@ if __name__ == "__main__":
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
         accumulate_grad_batches=accumulate_grad_batches,
-        gpus=-1
+        gpus=-1,
     )
 
     ckpt_path = args.ckpt_path
