@@ -71,7 +71,6 @@ if __name__ == "__main__":
         data_type="train",
         n_sample=args.train_sample,
         dataset=args.dataset,
-        num_workers=args.num_workers
     )
     val_set = LatexDataset(
         data_path=args.data_path,
@@ -79,7 +78,6 @@ if __name__ == "__main__":
         data_type="validate",
         n_sample=args.val_sample,
         dataset=args.dataset,
-        num_workers=args.num_workers
     )
     test_set = LatexDataset(
         data_path=args.data_path,
@@ -87,12 +85,11 @@ if __name__ == "__main__":
         data_type="test",
         n_sample=args.test_sample,
         dataset=args.dataset,
-        num_workers=args.num_workers
     )
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
     total_steps = steps_per_epoch * args.max_epochs
-    dm = DataModule(train_set, val_set, test_set, args.batch_size, text)
+    dm = DataModule(train_set, val_set, test_set, args.num_workers, args.batch_size, text)
 
     model = Image2LatexModel(
         lr=args.lr,
