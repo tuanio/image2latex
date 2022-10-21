@@ -8,3 +8,4 @@ torchaudio==0.12.1
 torchmetrics==0.10.0
 torchtext==0.13.1
 torchvision==0.13.1
+evaluate==0.3.0

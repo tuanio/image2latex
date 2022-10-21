@@ -6,6 +6,7 @@ from .utils import exact_match
 import pytorch_lightning as pl
 from torchaudio.functional import edit_distance
 from torchtext.data.metrics import bleu_score
+from evaluate import load
 
 
 class Image2LatexModel(pl.LightningModule):
@@ -54,6 +55,7 @@ class Image2LatexModel(pl.LightningModule):
         self.max_length = 150
         self.log_step = log_step
         self.log_text = log_text
+        self.exact_match = load("exact_match")
         self.save_hyperparameters()
 
     def configure_optimizers(self):
@@ -123,7 +125,16 @@ class Image2LatexModel(pl.LightningModule):
         )
 
         em = torch.mean(
-            torch.Tensor([exact_match(tru, pre) for pre, tru in zip(predicts, truths)])
+            torch.Tensor(
+                [
+                    torch.tensor(
+                        self.exact_match.compute(predictions=pre, references=tru)[
+                            "exact_match"
+                        ]
+                    )
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
         )
 
         if self.log_text and batch_idx % self.log_step == 0:
@@ -175,7 +186,16 @@ class Image2LatexModel(pl.LightningModule):
         )
 
         em = torch.mean(
-            torch.Tensor([exact_match(tru, pre) for pre, tru in zip(predicts, truths)])
+            torch.Tensor(
+                [
+                    torch.tensor(
+                        self.exact_match.compute(predictions=pre, references=tru)[
+                            "exact_match"
+                        ]
+                    )
+                    for pre, tru in zip(predicts, truths)
+                ]
+            )
         )
 
         if (self.log_text or True) and batch_idx % self.log_step == 0:
