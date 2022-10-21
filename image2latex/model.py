@@ -128,7 +128,7 @@ class Image2LatexModel(pl.LightningModule):
             torch.Tensor(
                 [
                     torch.tensor(
-                        self.exact_match.compute(predictions=pre, references=tru)[
+                        self.exact_match.compute(predictions=[' '.join(pre)], references=[' '.join(tru)])[
                             "exact_match"
                         ]
                     )
