@@ -74,6 +74,9 @@ class Image2LatexModel(pl.LightningModule):
         return self.model(images, formulas, formula_len)
 
     def training_step(self, batch, batch_idx):
+        if batch_idx % 10 == 0:
+            torch.cuda.empty_cache()
+
         images, formulas, formula_len = batch
 
         formulas_in = formulas[:, :-1]
@@ -97,11 +100,11 @@ class Image2LatexModel(pl.LightningModule):
         formulas_out = formulas[:, 1:]
 
         outputs = self.model(images, formulas_in, formula_len)
-        
+
         bs, t, _ = outputs.size()
         _o = outputs.reshape(bs * t, -1)
         _t = formulas_out.reshape(-1)
-        
+
         loss = self.criterion(_o, _t)
 
         predicts = [

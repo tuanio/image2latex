@@ -124,7 +124,7 @@ if __name__ == "__main__":
         callbacks=[lr_monitor],
         max_epochs=args.max_epochs,
         accelerator="auto",
-        strategy="ddp",
+        strategy="dp",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
         accumulate_grad_batches=accumulate_grad_batches,
