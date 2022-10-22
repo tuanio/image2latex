@@ -89,7 +89,9 @@ if __name__ == "__main__":
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
     total_steps = steps_per_epoch * args.max_epochs
-    dm = DataModule(train_set, val_set, test_set, args.num_workers, args.batch_size, text)
+    dm = DataModule(
+        train_set, val_set, test_set, args.num_workers, args.batch_size, text
+    )
 
     model = Image2LatexModel(
         lr=args.lr,
@@ -125,7 +127,7 @@ if __name__ == "__main__":
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
         accumulate_grad_batches=accumulate_grad_batches,
-        devices=-1
+        devices=-1,
     )
 
     ckpt_path = args.ckpt_path

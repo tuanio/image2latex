@@ -31,7 +31,7 @@ class DataModule(pl.LightningDataModule):
             collate_fn=self.collate_fn,
             drop_last=True,
             num_workers=self.num_workers,
-            persistent_workers=True
+            persistent_workers=True,
         )
 
     def val_dataloader(self):
@@ -41,7 +41,7 @@ class DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
             num_workers=self.num_workers,
-            persistent_workers=True
+            persistent_workers=True,
         )
 
     def test_dataloader(self):
@@ -51,7 +51,7 @@ class DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
             num_workers=self.num_workers,
-            persistent_workers=True
+            persistent_workers=True,
         )
 
     def collate_fn(self, batch):

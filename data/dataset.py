@@ -1,6 +1,6 @@
-from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 import pandas as pd
+import torchvision
 from torchvision import transforms as tvt
 
 
@@ -16,10 +16,7 @@ class LatexDataset(Dataset):
             df = df.head(n_sample)
         df["image"] = df.image.map(lambda x: img_path + "/" + x)
         self.walker = df.to_dict("records")
-        if dataset == "100k":
-            self.transform = tvt.Compose([tvt.ToTensor(), tvt.Grayscale()])
-        else:
-            self.transform = tvt.Compose([tvt.ToTensor()])
+        self.transform = tvt.Compose([tvt.Normalize((0.5), (0.5)),])
 
     def __len__(self):
         return len(self.walker)
@@ -28,7 +25,9 @@ class LatexDataset(Dataset):
         item = self.walker[idx]
 
         formula = item["formula"]
-        image = Image.open(item["image"])
-        image = self.transform(image)
+        image = torchvision.io.read_image(item["image"])
+        image = image.to(dtype=torch.float)
+        image /= image.max()
+        image = self.transform(image)  # transform image to [-1, 1]
 
         return image, formula
