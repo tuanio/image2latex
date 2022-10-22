@@ -105,12 +105,9 @@ class ConvBNEncoder(nn.Module):
 class ResNetEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
-        self.resnet = torchvision.models.resnet152()
-        self.resnet.conv1 = nn.Conv2d(
-            3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
-        )
+        self.resnet = torchvision.models.resnet18()
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-1])
-        self.fc = nn.Linear(2048, enc_dim)
+        self.fc = nn.Linear(512, enc_dim)
         self.enc_dim = enc_dim
 
     def forward(self, x: Tensor):
@@ -128,13 +125,10 @@ class ResNetEncoder(nn.Module):
 class ResNetWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
-        self.resnet = torchvision.models.resnet152()
-        self.resnet.conv1 = nn.Conv2d(
-            3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
-        )
+        self.resnet = torchvision.models.resnet18()
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
-        self.row_encoder = nn.LSTM(2048, enc_dim, batch_first=True, bidirectional=True)
+        self.row_encoder = nn.LSTM(512, enc_dim, batch_first=True, bidirectional=True)
 
         self.enc_dim = enc_dim * 2  # bidirectional = True
 
