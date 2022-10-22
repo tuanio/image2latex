@@ -123,7 +123,7 @@ if __name__ == "__main__":
         logger=wandb_logger,
         callbacks=[lr_monitor],
         max_epochs=args.max_epochs,
-        accelerator="auto",
+        accelerator="dp",
         log_every_n_steps=1,
         gradient_clip_val=args.grad_clip,
         accumulate_grad_batches=accumulate_grad_batches,
