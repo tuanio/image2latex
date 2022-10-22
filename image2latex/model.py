@@ -97,10 +97,14 @@ class Image2LatexModel(pl.LightningModule):
         formulas_out = formulas[:, 1:]
 
         outputs = self.model(images, formulas_in, formula_len)
+        
+        print(images.size())
 
         bs, t, _ = outputs.size()
         _o = outputs.reshape(bs * t, -1)
         _t = formulas_out.reshape(-1)
+        
+        print(_o.size(), _t.size())
         loss = self.criterion(_o, _t)
 
         predicts = [

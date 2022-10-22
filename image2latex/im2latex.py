@@ -72,7 +72,7 @@ class Image2Latex(nn.Module):
         h = torch.tanh(self.init_h(encoder_mean))
         c = torch.tanh(self.init_c(encoder_mean))
         return h, c
-
+ 
     def forward(self, x: Tensor, y: Tensor, y_len: Tensor):
         encoder_out = self.encoder(x)
 
@@ -86,7 +86,7 @@ class Image2Latex(nn.Module):
 
         predictions = torch.stack(predictions, dim=1)
         return predictions
-
+ 
     def decode(self, x: Tensor, max_length: int = 150):
         predict = []
         if self.decode_type == "greedy":
@@ -145,3 +145,4 @@ class Image2Latex(nn.Module):
             list_candidate = new_candidates[: self.beam_width]
 
         return list_candidate[0][0]
+

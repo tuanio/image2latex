@@ -30,5 +30,4 @@ class LatexDataset(Dataset):
         image = image.to(dtype=torch.float)
         image /= image.max()
         image = self.transform(image)  # transform image to [-1, 1]
-
         return image, formula
