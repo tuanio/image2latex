@@ -32,6 +32,7 @@ class DataModule(pl.LightningDataModule):
             drop_last=True,
             num_workers=self.num_workers,
             persistent_workers=True,
+            worker_init_fn=self.worker_init_fn
         )
 
     def val_dataloader(self):
@@ -42,6 +43,7 @@ class DataModule(pl.LightningDataModule):
             collate_fn=self.collate_fn,
             num_workers=self.num_workers,
             persistent_workers=True,
+            worker_init_fn=self.worker_init_fn
         )
 
     def test_dataloader(self):
@@ -52,6 +54,7 @@ class DataModule(pl.LightningDataModule):
             collate_fn=self.collate_fn,
             num_workers=self.num_workers,
             persistent_workers=True,
+            worker_init_fn=self.worker_init_fn
         )
 
     def collate_fn(self, batch):
@@ -77,3 +80,16 @@ class DataModule(pl.LightningDataModule):
 
         images = torch.stack(list(map(padding, images))).to(dtype=torch.float)
         return images, formulas, formula_len
+
+    def worker_init_fn(self, worker_id):
+        worker_info = torch.utils.data.get_worker_info()
+        dataset = worker_info.dataset  # the dataset copy in this worker process
+        overall_start = dataset.start
+        overall_end = dataset.end
+        # configure the dataset to only process the split workload
+        per_worker = int(
+            math.ceil((overall_end - overall_start) / float(worker_info.num_workers))
+        )
+        worker_id = worker_info.id
+        dataset.start = overall_start + worker_id * per_worker
+        dataset.end = min(dataset.start + per_worker, overall_end)
