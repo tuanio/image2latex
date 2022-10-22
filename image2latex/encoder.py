@@ -7,7 +7,7 @@ class ConvWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.feature_encoder = nn.Sequential(
-            nn.Conv2d(1, 64, 1, 1),
+            nn.Conv2d(3, 64, 1, 1),
             nn.Conv2d(64, 128, 3, 1),
             nn.MaxPool2d(2, 2),
             nn.Conv2d(128, 256, 3, 1),
@@ -50,7 +50,7 @@ class ConvEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.feature_encoder = nn.Sequential(
-            nn.Conv2d(1, 64, 3, 1),
+            nn.Conv2d(3, 64, 3, 1),
             nn.Conv2d(64, 128, 3, 1),
             nn.Conv2d(128, 256, 3, 1),
             nn.Conv2d(256, 256, 3, 1),
@@ -76,7 +76,7 @@ class ConvBNEncoder(nn.Module):
     def __init__(self, enc_dim: int):
         super().__init__()
         self.feature_encoder = nn.Sequential(
-            nn.Conv2d(1, 64, 3, 1),
+            nn.Conv2d(3, 64, 3, 1),
             nn.Conv2d(64, 128, 3, 1),
             nn.BatchNorm2d(128),
             nn.Conv2d(128, 256, 3, 1),
@@ -107,7 +107,7 @@ class ResNetEncoder(nn.Module):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
         self.resnet.conv1 = nn.Conv2d(
-            1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+            3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
         )
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-1])
         self.fc = nn.Linear(2048, enc_dim)
@@ -130,7 +130,7 @@ class ResNetWithRowEncoder(nn.Module):
         super().__init__()
         self.resnet = torchvision.models.resnet152()
         self.resnet.conv1 = nn.Conv2d(
-            1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+            3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
         )
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
