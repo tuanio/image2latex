@@ -98,7 +98,7 @@ class Image2LatexModel(pl.LightningModule):
 
         outputs = self.model(images, formulas_in, formula_len)
         
-        print(images.size())
+        print(images.size(), formulas_out.size(), outputs.size())
 
         bs, t, _ = outputs.size()
         _o = outputs.reshape(bs * t, -1)
