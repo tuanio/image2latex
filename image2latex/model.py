@@ -203,7 +203,7 @@ class Image2LatexModel(pl.LightningModule):
             )
         )
 
-        if self.log_text and batch_idx % self.log_step == 0:
+        if True and batch_idx % self.log_step == 0:
             for truth, pred in zip(truths, predicts):
                 print("=" * 20)
                 print(f"Truth: [{' '.join(truth)}] | Predict: [{' '.join(pred)}]")
