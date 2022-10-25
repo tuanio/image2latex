@@ -166,6 +166,7 @@ class Image2LatexModel(pl.LightningModule):
         bs, t, _ = outputs.size()
         _o = outputs.reshape(bs * t, -1)
         _t = formulas_out.reshape(-1)
+
         loss = self.criterion(_o, _t)
 
         predicts = [
@@ -193,16 +194,16 @@ class Image2LatexModel(pl.LightningModule):
             torch.Tensor(
                 [
                     torch.tensor(
-                        self.exact_match.compute(predictions=pre, references=tru)[
-                            "exact_match"
-                        ]
+                        self.exact_match.compute(
+                            predictions=[" ".join(pre)], references=[" ".join(tru)]
+                        )["exact_match"]
                     )
                     for pre, tru in zip(predicts, truths)
                 ]
             )
         )
 
-        if (self.log_text or True) and batch_idx % self.log_step == 0:
+        if self.log_text and batch_idx % self.log_step == 0:
             for truth, pred in zip(truths, predicts):
                 print("=" * 20)
                 print(f"Truth: [{' '.join(truth)}] | Predict: [{' '.join(pred)}]")
