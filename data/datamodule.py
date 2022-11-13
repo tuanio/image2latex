@@ -19,6 +19,7 @@ class DataModule(pl.LightningDataModule):
         self.train_set = train_set
         self.val_set = val_set
         self.test_set = test_set
+        self.predict_set = predict_set
         self.batch_size = batch_size
         self.text = text
         self.num_workers = num_workers
@@ -51,6 +52,14 @@ class DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             collate_fn=self.collate_fn,
             num_workers=self.num_workers,
+            persistent_workers=True,
+        )
+
+    def predict_dataloader(self):
+        return DataLoader(
+            self.predict_set,
+            shuffle=False,
+            batch_size=self.batch_size,
             persistent_workers=True,
         )
 

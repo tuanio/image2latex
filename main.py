@@ -6,7 +6,7 @@ import torch
 from torch.utils.checkpoint import checkpoint
 from torch import nn, Tensor
 from image2latex.model import Image2LatexModel
-from data.dataset import LatexDataset
+from data.dataset import LatexDataset, LatexPredictDataset
 from data.datamodule import DataModule
 from image2latex.text import Text100k, Text170k
 import pytorch_lightning as pl
@@ -18,13 +18,17 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--accumulate-batch", type=int, default=32)
     parser.add_argument("--data-path", type=str, help="data path")
-    parser.add_argument("--img-path", type=str, help="data path")
+    parser.add_argument("--img-path", type=str, help="image folder path")
+    parser.add_argument(
+        "--predict-img-path", type=str, help="image for predict path", default=None
+    )
     parser.add_argument(
         "--dataset", type=str, help="choose dataset [100k, 170k]", default="100k"
     )
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--val", action="store_true")
     parser.add_argument("--test", action="store_true")
+    parser.add_argument("--predict", action="store_true")
     parser.add_argument("--log-text", action="store_true")
     parser.add_argument("--train-sample", type=int, default=5000)
     parser.add_argument("--val-sample", type=int, default=1000)
@@ -86,11 +90,18 @@ if __name__ == "__main__":
         n_sample=args.test_sample,
         dataset=args.dataset,
     )
+    predict_set = LatexPredictDataset(predict_img_path=args.predict_img_path)
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
     total_steps = steps_per_epoch * args.max_epochs
     dm = DataModule(
-        train_set, val_set, test_set, args.num_workers, args.batch_size, text
+        train_set,
+        val_set,
+        test_set,
+        predict_set,
+        args.num_workers,
+        args.batch_size,
+        text,
     )
 
     model = Image2LatexModel(
@@ -146,3 +157,7 @@ if __name__ == "__main__":
     if args.test:
         print("=" * 10 + "[Test]" + "=" * 10)
         trainer.test(datamodule=dm, model=model, ckpt_path=ckpt_path)
+
+    if args.predict:
+        print("=" * 10 + "[Predict]" + "=" * 10)
+        trainer.predict(datamodule=dm, model=model, ckpt_path=ckpt_path)

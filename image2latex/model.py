@@ -216,3 +216,10 @@ class Image2LatexModel(pl.LightningModule):
         self.log("test_exact_match", em, sync_dist=True)
 
         return edit_dist, bleu4, em, loss
+
+    def predict_step(self, batch, batch_idx):
+        image = batch
+
+        latex = self.model.decode(image, self.max_length)
+
+        return latex

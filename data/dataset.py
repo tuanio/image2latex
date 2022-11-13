@@ -4,6 +4,7 @@ import torch
 import torchvision
 from torchvision import transforms as tvt
 import math
+import os
 
 
 class LatexDataset(Dataset):
@@ -32,3 +33,26 @@ class LatexDataset(Dataset):
         image /= image.max()
         image = self.transform(image)  # transform image to [-1, 1]
         return image, formula
+
+
+class LatexPredictDataset(Dataset):
+    def __init__(self, predict_img_path: str):
+        super().__init__()
+        if predict_img_path:
+            assert os.path.exists(predict_img_path), "Image not found"
+            self.walker = [predict_img_path]
+        else:
+            self.walker = []
+
+    def __len__(self):
+        return len(self.walker)
+
+    def __getitem__(self, index):
+        img_path = self.walker[idx]
+
+        image = torchvision.io.read_image(img_path)
+        image = image.to(dtype=torch.float)
+        image /= image.max()
+        image = self.transform(image)  # transform image to [-1, 1]
+
+        return image
