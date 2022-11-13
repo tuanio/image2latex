@@ -35,4 +35,4 @@ This structure is based on Seq2Seq architecture, it use one Convolutional Encode
 python main.py --batch-size 2 --data-path C:\Users\nvatu\OneDrive\Desktop\dataset5\dataset5 --img-path C:\Users\nvatu\OneDrive\Desktop\dataset5\dataset5\formula_images --dataset 170k --val --decode-type beamsearch
 
 ## Example
-- <a href="https://www.kaggle.com/code/tuannguyenvananh/image2latex-resnetbilstm-lstm">Resnet Row Encoder</a>
+- <a href="https://www.kaggle.com/code/tuannguyenvananh/image2latex-resnetbilstm-lstm">ResNet Row Encoder</a>
