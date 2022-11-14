@@ -222,4 +222,6 @@ class Image2LatexModel(pl.LightningModule):
 
         latex = self.model.decode(image, self.max_length)
 
+        print("Predicted:", latex)
+
         return latex
