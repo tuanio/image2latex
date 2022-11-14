@@ -11,6 +11,7 @@ class DataModule(pl.LightningDataModule):
         train_set,
         val_set,
         test_set,
+        predict_set,
         num_workers: int = 1,
         batch_size=20,
         text=None,
