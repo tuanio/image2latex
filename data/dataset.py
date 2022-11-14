@@ -47,7 +47,7 @@ class LatexPredictDataset(Dataset):
     def __len__(self):
         return len(self.walker)
 
-    def __getitem__(self, index):
+    def __getitem__(self, idx):
         img_path = self.walker[idx]
 
         image = torchvision.io.read_image(img_path)
