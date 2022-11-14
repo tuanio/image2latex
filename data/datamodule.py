@@ -61,7 +61,6 @@ class DataModule(pl.LightningDataModule):
             self.predict_set,
             shuffle=False,
             batch_size=self.batch_size,
-            persistent_workers=True,
         )
 
     def collate_fn(self, batch):
