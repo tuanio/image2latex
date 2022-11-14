@@ -57,11 +57,7 @@ class DataModule(pl.LightningDataModule):
         )
 
     def predict_dataloader(self):
-        return DataLoader(
-            self.predict_set,
-            shuffle=False,
-            batch_size=self.batch_size,
-        )
+        return DataLoader(self.predict_set, shuffle=False, batch_size=self.batch_size,)
 
     def collate_fn(self, batch):
         size = len(batch)

@@ -43,6 +43,7 @@ class LatexPredictDataset(Dataset):
             self.walker = [predict_img_path]
         else:
             self.walker = []
+        self.transform = tvt.Compose([tvt.Normalize((0.5), (0.5)),])
 
     def __len__(self):
         return len(self.walker)
