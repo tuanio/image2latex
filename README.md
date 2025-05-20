@@ -1,4 +1,4 @@
-# 🖼️ Image to LaTeX | 📐🔢 ➡️ LaTeX
+# 🖼️ Image to LaTeX | 🧠🖼️ ➜ `𝑒^{𝑥}` ➜ `\mathrm{e}^{x}`
 
 ## 📘 Introduction
 
