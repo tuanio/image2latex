@@ -1,4 +1,4 @@
-# 🖼️ Image to LaTeX
+# 🖼️ Image to LaTeX | 📐🔢 ➡️ LaTeX
 
 ## 📘 Introduction
 
