@@ -6,6 +6,10 @@ This repository implements a deep learning model to solve the **Image-to-LaTeX**
 
 > 🧠 Motivation: Many students, researchers, and professionals encounter LaTeX-based documents but lack the ability to extract and reuse formulas quickly. This project aims to automate the conversion of math formula images into editable LaTeX.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tuanio/image2latex/be4f49b651740ddfd702c508f982afb605affe3e/img_to_latex_diagram.png" alt="Image2Latex Diagram"/>
+</p>
+
 ---
 
 ## 🏗️ Model Architecture
