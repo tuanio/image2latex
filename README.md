@@ -108,3 +108,9 @@ Explore pre-trained model performance and evaluation in Kaggle Notebooks:
 **Nguyễn Văn Anh Tuấn**
 📍 IUH - Industrial University of Ho Chi Minh City
 ✉️ [nvatuan3@gmail.com](mailto:nvatuan3@gmail.com)
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tuanio/image2latex&type=Date)](https://star-history.com/#tuanio/image2latex&Date)
+
